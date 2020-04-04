@@ -1,7 +1,7 @@
 #include <iostream>
+#include <random>
 #include <chrono>
 
-//#include "Eigen/Core"
 #include "ceres/ceres.h"
 
 using namespace std;
@@ -17,7 +17,7 @@ struct CURVE_FITTING_COST
     }
 
     const double _x, _y;
-};
+}; 
 
 int main (int argc, char** argv) 
 {
@@ -27,21 +27,46 @@ int main (int argc, char** argv)
     const int N = 100;
 
     vector<double> x_data, y_data;
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
+    normal_distribution<> dist{0, w_sigma};
 
-    cout << "generating data:" << endl;
+    // generate data
     for (uint32_t i = 0; i < N; i++) 
     {
-        double x = 1 / 100.0;
+        const double x = i / 100.0;
         x_data.push_back(x);
-        y_data.push_back(
-            exp(a*x*x + b*x + c)
-        );
-        cout << x_data[i] << " " << y_data[i] << endl;
+        y_data.push_back( exp(a*x*x + b*x + c) + dist(gen) );
     }
     
+    // least square problem
+    ceres::Problem problem;
+    for (uint32_t i = 0; i < N; i++)
+    {
+        problem.AddResidualBlock(
+            new ceres::AutoDiffCostFunction<CURVE_FITTING_COST, 1, 3>(
+                new CURVE_FITTING_COST (x_data[i], y_data[i])),
+            nullptr,
+            abc
+        );
+    }
 
-
+    // solver
     ceres::Solver::Options options;
+    options.linear_solver_type = ceres::DENSE_QR;
+    options.minimizer_progress_to_stdout = true;
 
+    ceres::Solver::Summary summary;
+    chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
+    ceres::Solve(options, &problem, &summary);
+    chrono::steady_clock::time_point t2 = chrono::steady_clock::now();
+    chrono::duration<double> tt = chrono::duration_cast<chrono::duration<double>>(t2 - t1);
+    cout << "solver time:" << tt.count() << endl;
+
+    cout << summary.BriefReport() << endl;
+    cout << "estimated a,b,c = ";
+    for (auto x:abc)
+        cout << x << " ";
+    cout << endl;
     return 0;
 }
