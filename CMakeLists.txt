@@ -5,21 +5,20 @@ set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 
 # Eigen
-set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/thirdparty/eigen)
-include_directories(${EIGEN_INCLUDE_DIR})
+#set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/thirdparty/eigen)
+#include_directories(${EIGEN_INCLUDE_DIR})
 
 # ceres
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/thirdparty/ceres-linux/lib/cmake/Ceres)
 find_package(Ceres REQUIRED)
 include_directories(${CERES_INCLUDE_DIRS})
-#set(Ceres_DIR ${CMAKE_SOURCE_DIR}/thirdparty/ceres-linux/lib/cmake/Ceres)
-#set(CERES_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/thirdparty/ceres-linux/include)
-#set(CERES_LIBRARIES ${CMAKE_SOURCE_DIR}/thirdparty/ceres-linux/lib/libceres.a)
+MESSAGE(STATUS "CERES_FOUND: ${CERES_FOUND}")
 
 # g2o
-set(G2O_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/thirdparty/g2o-linux/g2o)
-set(G2O_CORE_LIBRARY ${CMAKE_SOURCE_DIR}/thirdparty/g2o-linux/lib/libg2o_core.so)
-set(G2O_STUFF_LIBRARY ${CMAKE_SOURCE_DIR}/thirdparty/g2o-linux/lib/libg2o_stuff.a)
-include_directories(${G2O_INCLUDE_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/thirdparty/g2o-linux/cmake_modules)
+find_package(G2O REQUIRED)
+include_directories(${G2O_INCLUDE_DIRS})
+MESSAGE(STATUS "G2O_FOUND: ${G2O_FOUND}")
 
 # OpenCV (RNG)
 #find_package(OpenCV REQUIRED)

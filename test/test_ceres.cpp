@@ -2,7 +2,7 @@
 #include <random>
 #include <chrono>
 
-#include "ceres/ceres.h"
+#include <ceres/ceres.h>
 
 using namespace std;
 
@@ -39,7 +39,7 @@ int main (int argc, char** argv)
         y_data.push_back( exp(a*x*x + b*x + c) + dist(gen) );
     }
     
-    // least square problem
+    // build the optimization problem
     ceres::Problem problem;
     for (uint32_t i = 0; i < N; i++)
     {
